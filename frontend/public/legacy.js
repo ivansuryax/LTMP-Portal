@@ -42,6 +42,31 @@
   function statusClass(status){ return String(status || '').replace(/\s+/g, ''); }
 
   // ---------- LOGIN ----------
+  function startAuthenticatedSession(user){
+    currentUser = user;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').classList.add('active');
+    document.getElementById('sbUserName').textContent = currentUser.fullName;
+    document.getElementById('sbUserRole').textContent = currentUser.designation ? (currentUser.designation + ' · ' + currentUser.role) : currentUser.role;
+    buildNav();
+    updateAlertBadge();
+    if(alertRefreshTimer) clearInterval(alertRefreshTimer);
+    alertRefreshTimer = setInterval(updateAlertBadge, 30000);
+    const landing = (currentUser.role === 'Trainer') ? 'myprojects' : 'dashboard';
+    navigate(landing);
+  }
+
+  function restoreSession(){
+    // Do not use callServer here: a 401 simply means no stored login and
+    // should leave the login screen visible without showing an error toast.
+    showLoading(true);
+    window.ltmpApi.call('getCurrentUser').then(res => {
+      if(res && res.success && res.user) startAuthenticatedSession(res.user);
+    }).catch(err => {
+      if(err.status !== 401) console.error('Could not restore session:', err);
+    }).finally(() => showLoading(false));
+  }
+
   function doLogin(){
     const u = document.getElementById('loginUsername').value.trim().replace(/^(\d+)\.0$/, '$1');
     const p = document.getElementById('loginPassword').value;
@@ -52,17 +77,7 @@
     callServer('login', u, p).then(res => {
       showLoading(false);
       if(!res.success){ errEl.textContent = res.message; return; }
-      currentUser = res.user;
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('appShell').classList.add('active');
-      document.getElementById('sbUserName').textContent = currentUser.fullName;
-      document.getElementById('sbUserRole').textContent = currentUser.designation ? (currentUser.designation + ' · ' + currentUser.role) : currentUser.role;
-      buildNav();
-      updateAlertBadge();
-      if(alertRefreshTimer) clearInterval(alertRefreshTimer);
-      alertRefreshTimer = setInterval(updateAlertBadge, 30000);
-      const landing = (currentUser.role === 'Trainer') ? 'myprojects' : 'dashboard';
-      navigate(landing);
+      startAuthenticatedSession(res.user);
     }).catch(err => { showLoading(false); handleError(err); });
   }
   function logout(){
@@ -4002,4 +4017,4 @@
   function closeModal(){ document.getElementById('modalOverlay').classList.remove('active'); }
   document.getElementById('modalOverlay').addEventListener('click', e => { if(e.target.id === 'modalOverlay') closeModal(); });
   document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
-  
+  restoreSession();

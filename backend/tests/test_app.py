@@ -63,6 +63,17 @@ def test_protected_and_login(client):
     assert call(client, 'getDashboardData').status_code == 200
 
 
+def test_current_user_restores_authenticated_session(client):
+    assert call(client, 'getCurrentUser').status_code == 401
+    call(client, 'login', 'admin01', 'SafeTestPassword_123')
+    restored = call(client, 'getCurrentUser')
+    assert restored.status_code == 200
+    assert restored.json() == {'success': True, 'user': {
+        'username': 'admin01', 'fullName': 'The Admin', 'role': 'Admin',
+        'designation': '', 'email': '',
+    }}
+
+
 def test_dashboard_and_college_calculations(client):
     call(client, 'login', 'admin01', 'SafeTestPassword_123')
     body = call(client, 'getDashboardData').json()

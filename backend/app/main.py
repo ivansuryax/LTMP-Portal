@@ -119,11 +119,14 @@ def create_app(db_url=None):
                 response.set_cookie('ltmp_session', token, max_age=SESSION_AGE, httponly=True,
                                     secure=os.getenv('COOKIE_SECURE', 'false').lower() == 'true',
                                     samesite='lax', path='/api')
-                return {'success': True, 'user': {
-                    'username': person.username, 'fullName': person.full_name,
-                    'role': person.role, 'designation': person.designation, 'email': person.email}}
+                return {'success': True, 'user': _public_user(person)}
 
             actor = _require_user(db, request)
+            # The browser keeps the HttpOnly cookie, but loses its in-memory
+            # user object on refresh. This lets the client safely restore its
+            # UI without exposing the session token to JavaScript.
+            if name == 'getCurrentUser':
+                return {'success': True, 'user': _public_user(actor)}
             # Apply this before routing to ANY mutator (including legacy RPC
             # names). A forged browser username must never grant reassignment.
             if actor.role == 'Trainer' and name in {
@@ -380,6 +383,17 @@ def _require_user(db, request):
     if not actor or not actor.active:
         raise HTTPException(401, 'Account is inactive')
     return actor
+
+
+def _public_user(user):
+    """Return only the user fields required by the browser session UI."""
+    return {
+        'username': user.username,
+        'fullName': user.full_name,
+        'role': user.role,
+        'designation': user.designation,
+        'email': user.email,
+    }
 
 
 def _management(user):
