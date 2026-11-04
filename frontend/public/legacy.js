@@ -42,6 +42,15 @@
   function statusClass(status){ return String(status || '').replace(/\s+/g, ''); }
 
   // ---------- LOGIN ----------
+  function sessionPageKey(user){ return `ltmp:last-page:${user.username}`; }
+  function savedPageFor(user){
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(sessionPageKey(user)) || 'null');
+      const allowed = (NAV_BY_ROLE[user.role] || []).some(item => item.id === saved?.page);
+      return allowed ? saved : null;
+    } catch (_) { return null; }
+  }
+
   function startAuthenticatedSession(user){
     currentUser = user;
     document.getElementById('loginScreen').style.display = 'none';
@@ -52,8 +61,9 @@
     updateAlertBadge();
     if(alertRefreshTimer) clearInterval(alertRefreshTimer);
     alertRefreshTimer = setInterval(updateAlertBadge, 30000);
-    const landing = (currentUser.role === 'Trainer') ? 'myprojects' : 'dashboard';
-    navigate(landing);
+    const saved = savedPageFor(currentUser);
+    const landing = saved?.page || ((currentUser.role === 'Trainer') ? 'myprojects' : 'dashboard');
+    navigate(landing, saved?.param);
   }
 
   function restoreSession(){
@@ -87,6 +97,7 @@
     document.getElementById('modalOverlay')?.classList.remove('active');
     collegesCache = []; trainerUsersCache = [];
     window._vendorTrainerOptions = null;
+    if(currentUser) sessionStorage.removeItem(sessionPageKey(currentUser));
     currentUser = null;
     document.getElementById('appShell').classList.remove('active');
     document.getElementById('loginScreen').style.display = 'flex';
@@ -310,6 +321,9 @@
 
   function navigate(page, param){
     currentPage = page;
+    if(currentUser){
+      sessionStorage.setItem(sessionPageKey(currentUser), JSON.stringify({page, param: param || ''}));
+    }
     setActiveNav(page);
     if(page === 'dashboard') renderDashboard();
     else if(page === 'alerts'){ renderAlerts(); setTimeout(updateAlertBadge, 800); }
