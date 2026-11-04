@@ -1,0 +1,10 @@
+# Render Dashboard > LTMP Web Service > Environment
+# Never commit real DATABASE_URL or copy it into a source file.
+DATABASE_URL=(PASTE_NEON_DIRECT_CONNECTION_STRING_IN_RENDER_DASHBOARD_ONLY)
+REQUIRE_DATABASE_URL=true
+SERVE_FRONTEND=true
+COOKIE_SECURE=true
+PYTHONUNBUFFERED=1
+# Do not set POSTGRES_PASSWORD, POSTGRES_HOST, or POSTGRES_USER on Render.
+# Do not set VITE_API_ROOT. API is same-origin /api on the Render hostname.
+# Do not set FRONTEND_ORIGIN for this single-service production design.

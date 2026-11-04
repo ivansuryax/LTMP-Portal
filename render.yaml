@@ -1,0 +1,23 @@
+# Render Free + Neon Free: single origin avoids browser third-party cookie failures.
+# DO NOT put passwords, Neon URLs, or employee data in this file/repository.
+services:
+  - type: web
+    name: ltmp-portal
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeployTrigger: off
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Neon connection string pasted in Render dashboard; NEVER in Git.
+      - key: REQUIRE_DATABASE_URL
+        value: "true"
+      - key: SERVE_FRONTEND
+        value: "true"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: PYTHONUNBUFFERED
+        value: "1"

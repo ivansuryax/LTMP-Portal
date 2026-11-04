@@ -1,0 +1,3 @@
+LTMP unified + secure trainer ownership + scheduling conflicts
+2026-10-13
+58 backend regression tests; Chromium isolated workflow checks passed

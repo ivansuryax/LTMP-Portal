@@ -1,0 +1,55 @@
+<!-- ===================== LOGIN ===================== -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <img src="https://dortbyfaot8ak.cloudfront.net/wp-content/uploads/2023/11/2138lesuccess.png" alt="LeSuccess">
+      <h2>Training Management Portal</h2>
+      <p class="subtitle">Sign in to manage and track training projects</p>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter username" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-block" onclick="doLogin()">Sign In</button>
+      <div class="error-msg" id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- ===================== APP SHELL (TOP NAV) ===================== -->
+  <div id="appShell">
+    <div class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-logo"><img src="https://dortbyfaot8ak.cloudfront.net/wp-content/uploads/2023/11/2138lesuccess.png" alt="LeSuccess"></div>
+        <div class="navbar-nav" id="navItems"></div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-user">
+          <b id="sbUserName"></b>
+          <span id="sbUserRole" class="badge-role"></span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="openChangePassword()">Password</button>
+        <button class="btn btn-red btn-sm" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="content" id="pageContent"></div>
+    </div>
+  </div>
+
+  <!-- ===================== MODALS ===================== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalBox">
+      <div class="modal-header">
+        <h3 id="modalTitle">Modal</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="loading-overlay" id="loadingOverlay">Loading…</div>
